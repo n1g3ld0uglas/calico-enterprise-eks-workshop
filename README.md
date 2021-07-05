@@ -13,7 +13,7 @@ Kubernetes Security and Observability for EKS Workshop
 
     Use Calico Cloud install script provided in the welcome email for Calico Cloud trial account.
 
-    ```bash
+    ```
     # script should look similar to this
     curl https://installer.calicocloud.io/xxxxxx_yyyyyyy-saay-management_install.sh | bash
     ```
@@ -43,7 +43,7 @@ Kubernetes Security and Observability for EKS Workshop
 
 2. Configure log aggregation and flush intervals.
 
-    ```bash
+    ```
     kubectl patch felixconfiguration.p default -p '{"spec":{"flowLogsFlushInterval":"10s"}}'
     kubectl patch felixconfiguration.p default -p '{"spec":{"dnsLogsFlushInterval":"10s"}}'
     kubectl patch felixconfiguration.p default -p '{"spec":{"flowLogsFileAggregationKindForAllowed":1}}'
@@ -53,7 +53,7 @@ Kubernetes Security and Observability for EKS Workshop
 
     >[Felix](https://docs.tigera.io/reference/architecture/overview#felix) is one of Calico components that is responsible for configuring routes, ACLs, and anything else required on the host to provide desired connectivity for the endpoints on that host.
 
-    ```bash
+    ```
     kubectl patch felixconfiguration default --type='merge' -p '{"spec":{"policySyncPathPrefix":"/var/run/nodeagent","l7LogsFileEnabled":true}}'
     ```
     
@@ -69,7 +69,7 @@ Kubernetes Security and Observability for EKS Workshop
 
     We are going to deploy some policies into policy tier to take advantage of hierarcical policy management.
     
-```bash
+```
 cat << EOF > tiers.yaml
 ---
 apiVersion: projectcalico.org/v3
