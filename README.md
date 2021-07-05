@@ -128,13 +128,13 @@ EOF
 
 Apply the file
 
-    ```bash
+    ```
     kubectl apply -f https://raw.githubusercontent.com/n1g3ld0uglas/calico-enterprise-eks-workshop/main/policies/allow-kube-dns.yaml
     ```
 
 3. Deploy demo applications.
 
-    ```bash
+    ```
     # deploy dev app stack
     kubectl apply -f https://raw.githubusercontent.com/tigera-solutions/tigera-eks-workshop/main/demo/dev/app.manifests.yaml
 
@@ -146,7 +146,7 @@ Apply the file
 
     >The reports will be needed for one of a later lab.
 
-    ```bash
+    ```
     kubectl apply -f https://raw.githubusercontent.com/tigera-solutions/tigera-eks-workshop/main/demo/40-compliance-reports/daily-cis-results.yaml
     kubectl apply -f https://raw.githubusercontent.com/tigera-solutions/tigera-eks-workshop/main/demo/40-compliance-reports/cluster-reports.yaml
     ```
@@ -155,7 +155,7 @@ Apply the file
 
     >The alerts will be explored in a later lab.
 
-    ```bash
+    ```
     kubectl apply -f https://raw.githubusercontent.com/tigera-solutions/tigera-eks-workshop/main/demo/50-alerts/globalnetworkset.changed.yaml
     kubectl apply -f https://raw.githubusercontent.com/tigera-solutions/tigera-eks-workshop/main/demo/50-alerts/unsanctioned.dns.access.yaml
     kubectl apply -f https://raw.githubusercontent.com/tigera-solutions/tigera-eks-workshop/main/demo/50-alerts/unsanctioned.lateral.access.yaml
