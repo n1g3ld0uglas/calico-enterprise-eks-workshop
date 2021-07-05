@@ -228,9 +228,57 @@ Apply the file
 
     >The reports will be needed for one of a later lab.
 
+```
+apiVersion: projectcalico.org/v3
+kind: GlobalReport
+metadata:
+  name: daily-cis-results
+  labels:
+    deployment: production
+spec:
+  reportType: cis-benchmark
+  schedule: 0 0 * * *
+  cis:
+    highThreshold: 100
+    medThreshold: 50
+    includeUnscoredTests: true
+    numFailedTests: 5
+```
+
     ```
     kubectl apply -f https://raw.githubusercontent.com/tigera-solutions/tigera-eks-workshop/main/demo/40-compliance-reports/daily-cis-results.yaml
     ```
+
+```
+---
+apiVersion: projectcalico.org/v3
+kind: GlobalReport
+metadata:
+  name: cluster-inventory
+spec:
+  reportType: inventory
+  schedule: '*/30 * * * *'
+
+---
+apiVersion: projectcalico.org/v3
+kind: GlobalReport
+metadata:
+  name: cluster-network-access
+spec:
+  reportType: network-access
+  schedule: '*/30 * * * *'
+
+# uncomment policy-audit report if you configured audit logs for EKS cluster https://docs.tigera.io/compliance/compliance-reports/compliance-managed-cloud#enable-audit-logs-in-eks
+# ---
+# apiVersion: projectcalico.org/v3
+# kind: GlobalReport
+# metadata:
+#   name: cluster-policy-audit
+# spec:
+#   reportType: policy-audit
+#   schedule: '*/30 * * * *'
+```
+
     ```
     kubectl apply -f https://raw.githubusercontent.com/tigera-solutions/tigera-eks-workshop/main/demo/40-compliance-reports/cluster-reports.yaml
     ```
@@ -239,12 +287,131 @@ Apply the file
 
     >The alerts will be explored in a later lab.
 
+```
+---
+apiVersion: projectcalico.org/v3
+kind: GlobalAlertTemplate
+metadata:
+  name: policy.globalnetworkset
+spec:
+  description: "Alerts on any changes to global network sets"
+  summary: "[audit] [privileged access] change detected for ${objectRef.resource} ${objectRef.name}"
+  severity: 100
+  period: 5m
+  lookback: 5m
+  dataSet: audit
+  # alert is triggered if CRUD operation executed against any globalnetworkset
+  query: (verb=create OR verb=update OR verb=delete OR verb=patch) AND "objectRef.resource"=globalnetworksets
+  aggregateBy: [objectRef.resource, objectRef.name]
+  metric: count
+  condition: gt
+  threshold: 0
+
+---
+apiVersion: projectcalico.org/v3
+kind: GlobalAlert
+metadata:
+  name: policy.globalnetworkset
+spec:
+  description: "Alerts on any changes to global network sets"
+  summary: "[audit] [privileged access] change detected for ${objectRef.resource} ${objectRef.name}"
+  severity: 100
+  period: 1m
+  lookback: 1m
+  dataSet: audit
+  # alert is triggered if CRUD operation executed against any globalnetworkset
+  query: (verb=create OR verb=update OR verb=delete OR verb=patch) AND "objectRef.resource"=globalnetworksets
+  aggregateBy: [objectRef.resource, objectRef.name]
+  metric: count
+  condition: gt
+  threshold: 0
+```
+
     ```
     kubectl apply -f https://raw.githubusercontent.com/tigera-solutions/tigera-eks-workshop/main/demo/50-alerts/globalnetworkset.changed.yaml
     ```
+```
+---
+apiVersion: projectcalico.org/v3
+kind: GlobalAlertTemplate
+metadata:
+  name: dns.unsanctioned.access
+spec:
+  description: "Pod attempted to access restricted.com domain"
+  summary: "[dns] pod ${client_namespace}/${client_name_aggr} attempted to access '${qname}'"
+  severity: 100
+  dataSet: dns
+  period: 5m
+  lookback: 5m
+  query: '(qname = "www.restricted.com" OR qname = "restricted.com")'
+  aggregateBy: [client_namespace, client_name_aggr, qname]
+  metric: count
+  condition: gt
+  threshold: 0
+
+---
+apiVersion: projectcalico.org/v3
+kind: GlobalAlert
+metadata:
+  name: dns.unsanctioned.access
+spec:
+  description: "Pod attempted to access google.com domain"
+  summary: "[dns] pod ${client_namespace}/${client_name_aggr} attempted to access '${qname}'"
+  severity: 100
+  dataSet: dns
+  period: 1m
+  lookback: 1m
+  query: '(qname = "www.google.com" OR qname = "google.com")'
+  aggregateBy: [client_namespace, client_name_aggr, qname]
+  metric: count
+  condition: gt
+  threshold: 0
+```
+
     ```
     kubectl apply -f https://raw.githubusercontent.com/tigera-solutions/tigera-eks-workshop/main/demo/50-alerts/unsanctioned.dns.access.yaml
     ```
+
+```
+---
+apiVersion: projectcalico.org/v3
+kind: GlobalAlertTemplate
+metadata:
+  name: network.lateral.access
+spec:
+  description: "Alerts when pods with a specific label (security=strict) accessed by other workloads from other namespaces"
+  summary: "[flows] [lateral movement] ${source_namespace}/${source_name_aggr} has accessed ${dest_namespace}/${dest_name_aggr} with label security=strict"
+  severity: 100
+  period: 5m
+  lookback: 5m
+  dataSet: flows
+  query: '"dest_labels.labels"="security=strict" AND "dest_namespace"="secured_pod_namespace" AND "source_namespace"!="secured_pod_namespace" AND proto=tcp AND (("action"="allow" AND ("reporter"="dst" OR "reporter"="src")) OR ("action"="deny" AND "reporter"="src"))'
+  aggregateBy: [source_namespace, source_name_aggr, dest_namespace, dest_name_aggr]
+  field: num_flows
+  metric: sum
+  condition: gt
+  threshold: 0
+
+---
+apiVersion: projectcalico.org/v3
+kind: GlobalAlert
+metadata:
+  name: network.lateral.access
+spec:
+  description: "Alerts when pods with a specific label (security=strict) accessed by other workloads from other namespaces"
+  summary: "[flows] [lateral movement] ${source_namespace}/${source_name_aggr} has accessed ${dest_namespace}/${dest_name_aggr} with label security=strict"
+  severity: 100
+  period: 1m
+  lookback: 1m
+  dataSet: flows
+  query: '("dest_labels.labels"="security=strict" AND "dest_namespace"="dev") AND "source_namespace"!="dev" AND "proto"="tcp" AND (("action"="allow" AND ("reporter"="dst" OR "reporter"="src")) OR ("action"="deny" AND "reporter"="src"))'
+  aggregateBy: [source_namespace, source_name_aggr, dest_namespace, dest_name_aggr]
+  field: num_flows
+  metric: sum
+  condition: gt
+  threshold: 0
+```
+
     ```
     kubectl apply -f https://raw.githubusercontent.com/tigera-solutions/tigera-eks-workshop/main/demo/50-alerts/unsanctioned.lateral.access.yaml
     ```
