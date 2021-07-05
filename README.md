@@ -90,7 +90,7 @@ EOF
 ```
 
     ```bash
-    kubectl apply -f demo/tiers/tiers.yaml
+    kubectl apply -f https://raw.githubusercontent.com/n1g3ld0uglas/calico-enterprise-eks-workshop/main/policies/tiers.yaml
     ```
 
     This will add tiers `security` and `platform` to the Calico cluster.
