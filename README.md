@@ -624,10 +624,13 @@ spec:
 
     b. Edit the policy to use a `NetworkSet` instead of inline DNS rule.
 
-    ```
-    # deploy network set
+
+    Deploy network set
+    ```    
     kubectl apply -f demo/20-egress-access-controls/netset.external-apis.yaml
-    # deploy DNS policy using the network set
+    ``` 
+    Deploy DNS policy using the network set
+    ``` 
     kubectl apply -f demo/20-egress-access-controls/dns-policy.netset.yaml
     ```
 
@@ -655,12 +658,18 @@ Calico network policies not only can secure pod to pod communications but also c
     AWS_REGION=$(curl -s 169.254.169.254/latest/dynamic/instance-identity/document | jq -r '.region')
     # pick one EKS node and use it's ID to get securigy group
     SG_ID=$(aws ec2 describe-instances --region $AWS_REGION --filters "Name=tag:Name,Values=$CLUSTER_NAME*" "Name=instance-state-name,Values=running" --query 'Reservations[0].Instances[*].NetworkInterfaces[0].Groups[0].GroupId' --output text --output text)
-    # open SSH port in the security group for public access
+    ```
+    Open SSH port in the security group for public access
+    ```
     aws ec2 authorize-security-group-ingress --region $AWS_REGION --group-id $SG_ID --protocol tcp --port 30080 --cidr 0.0.0.0/0
-
-    # get public IP of an EKS node
+    ```
+    
+    Get public IP of an EKS node
+    ```
     PUB_IP=$(aws ec2 describe-instances --region $AWS_REGION --filters "Name=tag:Name,Values=$CLUSTER_NAME*" "Name=instance-state-name,Values=running" --query 'Reservations[0].Instances[0].PublicIpAddress' --output text --output text)
-    # test connection to SSH port
+    ```
+    Test connection to SSH port
+    ```
     nc -zv $PUB_IP 30080
     ```
 
@@ -674,13 +683,17 @@ Calico network policies not only can secure pod to pod communications but also c
 
     >Before you enable HEP auto-creation feature, make sure there are no `HostEndpoint` resources manually defined for your cluster: `kubectl get hostendpoints`.
 
-    ```bash
-    # check whether auto-creation for HEPs is enabled. Default: Disabled
+    
+    Check whether auto-creation for HEPs is enabled. Default: Disabled
+    ```
     kubectl get kubecontrollersconfiguration.p default -ojsonpath='{.status.runningConfig.controllers.node.hostEndpoint.autoCreate}'
-
-    # enable HEP auto-creation
+    ```
+    Enable HEP auto-creation
+    ```
     kubectl patch kubecontrollersconfiguration.p default -p '{"spec": {"controllers": {"node": {"hostEndpoint": {"autoCreate": "Enabled"}}}}}'
-    # verify that each node got a HostEndpoint resource created
+    ```
+    Verify that each node got a HostEndpoint resource created
+    ```
     kubectl get hostendpoints
     ```
 
@@ -688,16 +701,22 @@ Calico network policies not only can secure pod to pod communications but also c
 
     Deploy a policy that only allows access to the node port from the Cloud9 instance.
 
-    ```bash
-    # from your local shell test connection to the node port, i.e. 30080, using netcat or telnet or other connectivity testing tool
+    
+    From your local shell test connection to the node port, i.e. 30080, using netcat or telnet or other connectivity testing tool
     EKS_NODE_PUB_IP=XX.XX.XX.XX
+    ```
     nc -zv $EKS_NODE_PUB_IP 30080
-
-    # get public IP of Cloud9 instance in the Cloud9 shell
+    ```
+    Get public IP of Cloud9 instance in the Cloud9 shell
+    ```
     CLOUD9_IP=$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4)
-    # deploy HEP policy
+    ```
+    Deploy HEP policy
+    ```
     sed -e "s/\${CLOUD9_IP}/${CLOUD9_IP}\/32/g" demo/30-secure-hep/frontend-nodeport-access.yaml | kubectl apply -f -
-    # test access from Cloud9 shell
+    ```
+    Test access from Cloud9 shell
+    ```
     nc -zv $EKS_NODE_PUB_IP 30080
     ```
 
@@ -714,9 +733,12 @@ Calico network policies not only can secure pod to pod communications but also c
     kubectl apply -f demo/30-secure-hep/felixconfiguration.yaml
     ```
     
-    # get public IP of Cloud9 instance
+    Get Public IP of Cloud9 instance
+    ```
     CLOUD9_IP=$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4)
-    # allow SSH access to EKS nodes only from the Cloud9 instance
+    ```
+    Allow SSH access to EKS nodes only from the Cloud9 instance
+    ```
     sed -e "s/\${CLOUD9_IP}/${CLOUD9_IP}\/32/g" demo/30-secure-hep/ssh-access.yaml | kubectl apply -f -
     ```
     
@@ -725,7 +747,8 @@ Calico network policies not only can secure pod to pod communications but also c
     
     
     
-    
+  ![Calico-Networking-For-Kubernetes](https://user-images.githubusercontent.com/82048393/124490722-60043780-ddaa-11eb-80a9-4dab4cf3313c.png)
+  
     
     
     
