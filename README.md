@@ -536,10 +536,17 @@ spec:
 ```
 
     ```
-    kubectl apply -f https://raw.githubusercontent.com/tigera-solutions/tigera-eks-workshop/main/demo/10-security-controls/staged.default-deny.yaml
+    kubectl apply -f https://raw.githubusercontent.com/n1g3ld0uglas/calico-enterprise-eks-workshop/main/policies/default-deny.yaml
     ```
+    
+    <img width="1183" alt="Screenshot 2021-07-06 at 11 41 39" src="https://user-images.githubusercontent.com/82048393/124587103-29ccc380-de4f-11eb-8862-fa007fa55dec.png">
+
 
     You should be able to view the potential affect of the staged `default-deny` policy if you navigate to the `Dashboard` view in the Enterprise Manager UI and look at the `Packets by Policy` histogram.
+    
+    
+    <img width="928" alt="Screenshot 2021-07-06 at 11 42 48" src="https://user-images.githubusercontent.com/82048393/124587258-54b71780-de4f-11eb-9713-08c2d2d9d5af.png">
+
 
     ```
     # make a request across namespaces and view Packets by Policy histogram
@@ -558,62 +565,90 @@ spec:
     ```
     kubectl apply -f https://raw.githubusercontent.com/tigera-solutions/tigera-eks-workshop/main/demo/boutiqueshop/policies.yaml
     ```
+    
+    <img width="1308" alt="Screenshot 2021-07-06 at 11 44 39" src="https://user-images.githubusercontent.com/82048393/124587558-a790cf00-de4f-11eb-8a76-bf1e4395057e.png">
+
+<img width="1185" alt="Screenshot 2021-07-06 at 11 46 21" src="https://user-images.githubusercontent.com/82048393/124587723-dc9d2180-de4f-11eb-939d-3e9ac6d958b9.png">
+
 
     Now as we have proper policies in place, we can enforce `default-deny` policy moving closer to zero-trust security approach. You can either enforced the already deployed staged `default-deny` policy using the `Policies Board` view in the Enterirpse Manager UI, or you can apply an enforcing `default-deny` policy manifest.
 
     
-    Apply enforcing default-deny policy manifest
+ Apply enforcing default-deny policy manifest
     ```
-    kubectl apply -f demo/10-security-controls/default-deny.yaml
+    kubectl apply -f https://raw.githubusercontent.com/n1g3ld0uglas/calico-enterprise-eks-workshop/main/policies/default-deny2.yaml
     ```
-    You can delete staged default-deny policy
+ You can delete staged default-deny policy
     ```
-    kubectl delete -f demo/10-security-controls/staged.default-deny.yaml
+    kubectl delete -f https://raw.githubusercontent.com/n1g3ld0uglas/calico-enterprise-eks-workshop/main/policies/default-deny.yaml
     ```
+    
+    <img width="1365" alt="Screenshot 2021-07-06 at 11 50 18" src="https://user-images.githubusercontent.com/82048393/124588175-6c42d000-de50-11eb-8420-aadff8001c5b.png">
+
+
 
 4. Test connectivity with policies in place.
 
     a. The only connections between the components within each namespaces should be allowed as configured by the policies.
 
+    
+    Test connectivity within dev namespace
     ```
-    # test connectivity within dev namespace
     kubectl -n dev exec -t centos -- sh -c 'curl -m3 -sI http://nginx-svc 2>/dev/null | grep -i http'
+    ```
 
-    # test connectivity within default namespace
+    Test connectivity within default namespace
+    ```
     kubectl exec -it $(kubectl get po -l app=loadgenerator -ojsonpath='{.items[0].metadata.name}') -- sh -c 'curl -m3 -sI frontend 2>/dev/null | grep -i http'
     ```
 
     b. The connections across `dev` and `default` namespaces should be blocked by the global `default-deny` policy.
 
-    ```bash
-    # test connectivity from dev namespace to default namespace
+    
+    Test connectivity from dev namespace to default namespace
+    ```
     kubectl -n dev exec -t centos -- sh -c 'curl -m3 -sI http://frontend.default 2>/dev/null | grep -i http'
-
-    # test connectivity from default namespace to dev namespace
+    ```
+    
+    Test connectivity from default namespace to dev namespace
+    ```
     kubectl exec -it $(kubectl get po -l app=loadgenerator -ojsonpath='{.items[0].metadata.name}') -- sh -c 'curl -m3 -sI http://nginx-svc.dev 2>/dev/null | grep -i http'
     ```
+    
+    <img width="1669" alt="Screenshot 2021-07-06 at 11 54 11" src="https://user-images.githubusercontent.com/82048393/124588665-f7bc6100-de50-11eb-9b49-d8354127c120.png">
+
 
     c. The connections to the Internet should be blocked by the configured policies.
 
+    
+    Test connectivity from dev namespace to the Internet
     ```
-    # test connectivity from dev namespace to the Internet
     kubectl -n dev exec -t centos -- sh -c 'curl -m3 -sI http://www.google.com 2>/dev/null | grep -i http'
-
-    # test connectivity from default namespace to the Internet
+    ```
+    Test connectivity from default namespace to the Internet
+    ```
     kubectl exec -it $(kubectl get po -l app=loadgenerator -ojsonpath='{.items[0].metadata.name}') -- sh -c 'curl -m3 -sI www.google.com 2>/dev/null | grep -i http'
     ```
+    
+    <img width="1669" alt="Screenshot 2021-07-06 at 11 56 22" src="https://user-images.githubusercontent.com/82048393/124588892-3fdb8380-de51-11eb-97fa-438ae1e0928d.png">
+
 
 5. Protect workloads from known bad actors.
 
     Calico offers `GlobalThreatfeed` resource to prevent known bad actors from accessing Kubernetes pods.
 
+    
+    Deploy feodo tracker threatfeed
     ```
-    # deploy feodo tracker threatfeed
     kubectl apply -f demo/10-security-controls/feodotracker.threatfeed.yaml
-    # deploy network policy that uses the threadfeed
+    ```
+    Deploy network policy that uses the threadfeed
+    ```
     kubectl apply -f demo/10-security-controls/feodo-block-policy.yaml
+    ```
 
-    # try to ping any of the IPs in from the feodo tracker list
+    Try to ping any of the IPs in from the feodo tracker list
+    ```
     IP=$(kubectl get globalnetworkset threatfeed.feodo-tracker -ojson | jq .spec.nets[0] | sed -e 's/^"//' -e 's/"$//' -e 's/\/32//')
     kubectl -n dev exec -t centos -- sh -c "ping -c1 $IP"
     ```
