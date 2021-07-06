@@ -238,6 +238,11 @@ Apply the file
     ```
     kubectl apply -f https://raw.githubusercontent.com/n1g3ld0uglas/calico-enterprise-eks-workshop/main/policies/allow-kube-dns.yaml
     ```
+    
+At this point, we have created our 1st network policy to allow traffic for Kube-DNS (based solely on label selection):
+
+<img width="1194" alt="Screenshot 2021-07-06 at 11 16 58" src="https://user-images.githubusercontent.com/82048393/124584175-d7d66e80-de4b-11eb-83eb-75ff19dc304c.png">
+    
 
 3. Deploy demo applications.
 
@@ -448,6 +453,13 @@ spec:
     ```
 
 
+For this section, we simply ran some `kubectl apply` commands in order to create our global alerts and scheduling compliance reports:
+
+<img width="1575" alt="Screenshot 2021-07-06 at 11 20 13" src="https://user-images.githubusercontent.com/82048393/124584660-6a770d80-de4c-11eb-86cf-22ae241b1d16.png">
+
+
+
+
 # Module 5: Using security controls
 
 **Goal:** Leverage network policies to segment connections within Kubernetes cluster and prevent known bad actors from accessing the workloads.
@@ -470,6 +482,9 @@ spec:
     ```
     kubectl exec -it $(kubectl get po -l app=frontend -ojsonpath='{.items[0].metadata.name}') -c server -- sh -c 'nc -zv productcatalogservice 3550'
     ```
+    
+    <img width="1575" alt="Screenshot 2021-07-06 at 11 24 03" src="https://user-images.githubusercontent.com/82048393/124585014-cb064a80-de4c-11eb-8765-75be922604d0.png">
+
 
     b. Test connectivity across namespaces.
 
@@ -481,6 +496,9 @@ spec:
     ```
     kubectl exec -it $(kubectl get po -l app=loadgenerator -ojsonpath='{.items[0].metadata.name}') -- sh -c 'curl -m3 -sI http://nginx-svc.dev 2>/dev/null | grep -i http'
     ```
+    
+    <img width="1670" alt="Screenshot 2021-07-06 at 11 25 51" src="https://user-images.githubusercontent.com/82048393/124585186-f9842580-de4c-11eb-8826-5461957a779b.png">
+
 
     c. Test connectivity from each namespace to the Internet.
 
@@ -495,6 +513,9 @@ spec:
    kubectl exec -it $(kubectl get po -l app=loadgenerator -ojsonpath='{.items[0].metadata.name}') -- sh -c 'curl -m3 -sI www.google.com 2>/dev/null | grep -i http'
    ```
 
+   <img width="1781" alt="Screenshot 2021-07-06 at 11 27 30" src="https://user-images.githubusercontent.com/82048393/124585470-394b0d00-de4d-11eb-843f-735f51198139.png">
+
+   
     All of these tests should succeed if there are no policies in place to govern the traffic for `dev` and `default` namespaces.
 
 2. Apply staged `default-deny` policy.
