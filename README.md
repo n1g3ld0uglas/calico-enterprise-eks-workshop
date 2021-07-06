@@ -762,35 +762,41 @@ Calico network policies not only can secure pod to pod communications but also c
     - Count of triggered alerts
     - Packets by Policy histogram that shows allowed and denied traffic as it is being evaluated by network policies
 
-    ![dashboard view](../img/dashboard-view.png)
+   <img width="1570" alt="1" src="https://user-images.githubusercontent.com/82048393/124572643-b459f680-de40-11eb-8950-5d8059d323e9.png">
+
 
 2. Policies Board
 
     The `Policies Board` shows all policies deployed in the cluster and organized into `policy tiers`. You can control what a user can see and do by configuring Kubernetes RBAC roles which determine what the user can see in this view. You can also use controls to hide away tiers you're not interested in at any given time.
 
-    ![policies board](../img/policies-board.png)
+    <img width="1420" alt="2" src="https://user-images.githubusercontent.com/82048393/124572667-b9b74100-de40-11eb-87e8-d22864726442.png">
+
 
     By leveraging stats controls you can toggle additional metrics to be listed for each shown policy.
 
-    ![policies board stats](../img/policies-board-stats.png)
+    <img width="1569" alt="3" src="https://user-images.githubusercontent.com/82048393/124572695-bfad2200-de40-11eb-8409-587cc2b89d1c.png">
+
 
 3. Audit timeline
 
     The `Timeline` view shows audit trail of created, deleted, or modified resources.
 
-    ![timeline view](../img/timeline-view.png)
+    <img width="1419" alt="4" src="https://user-images.githubusercontent.com/82048393/124572715-c50a6c80-de40-11eb-8d7d-6d24b4bee192.png">
+
 
 4. Endpoints
 
     The `Endpoints` view lists all endpoints known to Calico. It includes all Kubernetes endpoints, such as Pods, as well as Host endpoints that can represent a Kubernetes host or an external VM or bare metal machine.
 
-    ![endpoints view](../img/endpoints-view.png)
+   <img width="1421" alt="5" src="https://user-images.githubusercontent.com/82048393/124572735-c9cf2080-de40-11eb-9b8f-deba4a337e1a.png">
+
 
 5. Service Graph
 
     The dynamic `Service Graph` presents network flows from service level perspective. Top level view shows how traffic flows between namespaces as well as external and internal endpoints.
 
-    ![service graph node view](../img/service-graph-node.png)
+    <img width="1415" alt="6" src="https://user-images.githubusercontent.com/82048393/124572860-e66b5880-de40-11eb-9665-8760968fbbdc.png">
+
 
     - When you select any node representing a namespace, you will get additional details about the namespace, such as incoming and outgoing traffic, policies evaluating each flow, and DNS metrics.
     - When you select any edge, you will get details about the flows representing that edge.
@@ -800,13 +806,15 @@ Calico network policies not only can secure pod to pod communications but also c
 
     The `Flow Visualizations` view shows all point-to-point flows in the cluster. It allows you to see the cluster traffic from the network point of view.
 
-    ![flow viz view](../img/flow-viz.png)
+    <img width="1569" alt="7" src="https://user-images.githubusercontent.com/82048393/124572877-ebc8a300-de40-11eb-80d6-2ae40ead9c1a.png">
+
 
 7. Kibana dashboards
 
     The `Kibana` components comes with Calico commercial offerings and provides you access to raw flow, audit, and dns logs, as well as ability to visualize the collected data in various dashboards.
 
-    ![kibana flows](../img/kibana-flow-logs.png)
+    <img width="1625" alt="8" src="https://user-images.githubusercontent.com/82048393/124572903-eff4c080-de40-11eb-911d-9e244acbc400.png">
+
 
     Some of the default dashboards you get access to are DNS Logs, Flow Logs, Audit Logs, Kuernetes API calls, L7 HTTP metrics, and others.    
     
