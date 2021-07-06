@@ -58,7 +58,7 @@ kubectl version --short --client
 
 First, create an Amazon EKS cluster without any nodes
 ```
-eksctl create cluster  --name nigel-eks-cluster  --version 1.19  --with-oidc  --without-nodegroup
+eksctl create cluster  --name tigera-workshop  --version 1.19  --with-oidc  --without-nodegroup
 ```
 
 Delete the aws-node daemon set to disable AWS VPC networking for pods
@@ -73,7 +73,7 @@ kubectl create -f https://docs.tigera.io/manifests/eks/custom-resources-calico-c
 
 Finally, add nodes to the cluster
 ```
-eksctl create nodegroup --cluster nigel-eks-cluster --node-type t3.xlarge  --nodes 3 --nodes-min 0 --nodes-max 3 --node-ami auto --max-pods-per-node 58
+eksctl create nodegroup --cluster tigera-workshop --node-type t3.xlarge  --nodes 3 --nodes-min 0 --nodes-max 3 --node-ami auto --max-pods-per-node 58
 ```
 
 View EKS cluster. Once the cluster is created you can list it using `eksctl`.
