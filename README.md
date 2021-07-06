@@ -1090,11 +1090,27 @@ Calico network policies not only can secure pod to pod communications but also c
 
     Stop packet capture by removing the `PacketCapture` resource.
 
-    ```bash
+    ```
     kubectl delete -f demo/60-packet-capture/nginx-pcap.yaml
     ```
 
 Congratulations! You have finished all the labs in the workshop.
+
+
+Scaling down your test cluster
+
+    ```
+    eksctl get cluster
+    ```
+    ```
+    eksctl get nodegroup --cluster tigera-workshop
+    ```
+    ```
+    eksctl scale nodegroup --cluster tigera-workshop --name ng-12150b8f --nodes 0
+    ```
+
+<img width="937" alt="Screenshot 2021-07-06 at 16 54 57" src="https://user-images.githubusercontent.com/82048393/124631212-10da0780-de7b-11eb-96c0-f4041e97788d.png">
+
 
 
 
