@@ -8,6 +8,7 @@ Kubernetes Security and Observability for EKS Workshop
 This workshop uses EKS cluster with most of the default configuration settings. 
 >To create an EKS cluster and tune the default settings, consider exploring [EKS Workshop](https://www.eksworkshop.com) materials.
 
+
 ## Steps
 
 
@@ -115,6 +116,10 @@ eksctl get cluster tigera-workshop
 
 >In order to complete this module, you must have [Calico Cloud trial account](https://www.tigera.io/tigera-products/calico-cloud/).
 
+<img width="1748" alt="Screenshot 2021-07-06 at 10 58 32" src="https://user-images.githubusercontent.com/82048393/124582160-abb9ee00-de49-11eb-9346-adcaceb7106c.png">
+
+<img width="1422" alt="Screenshot 2021-07-06 at 10 59 04" src="https://user-images.githubusercontent.com/82048393/124582176-af4d7500-de49-11eb-9f56-b2681c856923.png">
+
 ## Steps
 
 1. Join EKS cluster to Calico Cloud management plane.
@@ -130,24 +135,8 @@ eksctl get cluster tigera-workshop
 
     You should see the output similar to this:
 
-    ```text
-    [INFO] Checking for installed CNI Plugin
-    [INFO] Deploying CRDs and Tigera Operator
-    [INFO] Creating Tigera Pull Secret
-    [INFO] Tigera Operator is Available
-    [INFO] Adding Installation CR for Enterprise install
-    [WAIT] Tigera calico is Progressing
-    [INFO] Tigera Calico is Available
-    [INFO] Deploying Tigera Prometheus Operator
-    podmonitors.monitoring.coreos.com
-    [INFO] Deploying CRs for Managed Cluster
-    [INFO] Tigera Apiserver is Available
-    [INFO] Generate New Cluster Registration Manifest
-    [INFO] Creating connection
-    [INFO] All Tigera Components are Available
-    [INFO] Securing Install
-    .....
-    ```
+<img width="1086" alt="Screenshot 2021-07-06 at 11 03 08" src="https://user-images.githubusercontent.com/82048393/124582535-02272c80-de4a-11eb-92dc-12228d580542.png">
+
 
 2. Configure log aggregation and flush intervals.
 
@@ -156,6 +145,9 @@ eksctl get cluster tigera-workshop
     kubectl patch felixconfiguration.p default -p '{"spec":{"dnsLogsFlushInterval":"10s"}}'
     kubectl patch felixconfiguration.p default -p '{"spec":{"flowLogsFileAggregationKindForAllowed":1}}'
     ```
+    
+    <img width="1139" alt="Screenshot 2021-07-06 at 11 05 36" src="https://user-images.githubusercontent.com/82048393/124582712-2d118080-de4a-11eb-9897-73e06be11e43.png">
+
 
 3. Configure Felix for log data collection.
 
@@ -200,6 +192,13 @@ EOF
     ```
     kubectl apply -f https://raw.githubusercontent.com/n1g3ld0uglas/calico-enterprise-eks-workshop/main/policies/tiers.yaml
     ```
+
+<img width="532" alt="Screenshot 2021-07-06 at 11 10 10" src="https://user-images.githubusercontent.com/82048393/124583358-dd7f8480-de4a-11eb-9f29-33d76d295652.png">
+
+<img width="1191" alt="Screenshot 2021-07-06 at 11 11 55" src="https://user-images.githubusercontent.com/82048393/124583481-fe47da00-de4a-11eb-8c48-178dcf1ecf1f.png">
+
+
+
 
 This will add tiers `security` and `platform` to the Calico cluster.
 
@@ -248,6 +247,13 @@ Apply the file
     ```
     kubectl apply -f https://raw.githubusercontent.com/GoogleCloudPlatform/microservices-demo/master/release/kubernetes-manifests.yaml
     ```
+
+After running the above 3 commands, you should have the demo application up-and-running:
+
+<img width="1363" alt="Screenshot 2021-07-06 at 11 14 47" src="https://user-images.githubusercontent.com/82048393/124583911-84642080-de4b-11eb-94ef-83cd89cef69b.png">
+
+
+
 
 4. Deploy compliance reports.
 
