@@ -752,8 +752,24 @@ You should be able to view the potential affect of the staged `default-deny` pol
 
     >As a bonus example, you can modify the `external-apis` network set to include `*.google.com` domain name which would allow access to Google subdomains. If you do it, you can would allow acess to subdomains like `www.google.com`, `docs.google.com`, etc.
 
+# Module 7: Zone-Based Architecture
 
-# Module 7: Securing EKS hosts
+Introduce a new application into your test cluster:
+```
+kubectl apply -f https://installer.calicocloud.io/storefront-demo.yaml
+```
+
+Create a tier for the new zone-based policies:
+```
+kubectl apply -f https://raw.githubusercontent.com/n1g3ld0uglas/CCSecOps/main/Tiers/storefront.yaml
+```
+
+
+
+
+# Module 8: Policy Recommendations
+
+# Module 9: Securing EKS hosts
 
 **Goal:** Secure EKS hosts ports with network policies.
 
@@ -859,7 +875,7 @@ Calico network policies not only can secure pod to pod communications but also c
     ```
     
     
-# Module 8: Using observability tools
+# Module 10: Using observability tools
 
 **Goal:** Explore Calico observability tools.
 
@@ -938,7 +954,7 @@ Calico network policies not only can secure pod to pod communications but also c
 
 
 
-# Module 9: Using compliance reports
+# Module 11: Using compliance reports
 
 **Goal:** Use global reports to satisfy compliance requirements.
 
@@ -998,7 +1014,7 @@ Calico network policies not only can secure pod to pod communications but also c
     
  
  
- # Module 10: Using alerts
+ # Module 12: Using alerts
 
 **Goal:** Use global alerts to notify security and operations teams about unsanctioned or suspicious activity.
 
@@ -1025,7 +1041,7 @@ Calico network policies not only can secure pod to pod communications but also c
 
 
 
-# Module 11: Dynamic packet capture
+# Module 13: Dynamic packet capture
 
 **Goal:** Configure packet capture for specific pods and review captured payload.
 
