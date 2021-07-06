@@ -535,17 +535,19 @@ spec:
   - Egress
 ```
 
+Apply the below command
+
     ```
     kubectl apply -f https://raw.githubusercontent.com/n1g3ld0uglas/calico-enterprise-eks-workshop/main/policies/default-deny.yaml
     ```
-    
+
+The output should look something like this.. 
     <img width="1183" alt="Screenshot 2021-07-06 at 11 41 39" src="https://user-images.githubusercontent.com/82048393/124587103-29ccc380-de4f-11eb-8862-fa007fa55dec.png">
 
-
-    You should be able to view the potential affect of the staged `default-deny` policy if you navigate to the `Dashboard` view in the Enterprise Manager UI and look at the `Packets by Policy` histogram.
+You should be able to view the potential affect of the staged `default-deny` policy if you navigate to the `Dashboard` view in the Enterprise Manager UI and look at the `Packets by Policy` histogram.
     
     
-    <img width="928" alt="Screenshot 2021-07-06 at 11 42 48" src="https://user-images.githubusercontent.com/82048393/124587258-54b71780-de4f-11eb-9713-08c2d2d9d5af.png">
+  <img width="928" alt="Screenshot 2021-07-06 at 11 42 48" src="https://user-images.githubusercontent.com/82048393/124587258-54b71780-de4f-11eb-9713-08c2d2d9d5af.png">
 
 
     ```
@@ -553,7 +555,7 @@ spec:
     for i in {1..10}; do kubectl -n dev exec -t centos -- sh -c 'curl -m3 -sI http://frontend.default 2>/dev/null | grep -i http'; sleep 2; done
     ```
 
-    >The staged policy does not affect the traffic directly but allows you to view the policy impact if it were to be enforced.
+   >The staged policy does not affect the traffic directly but allows you to view the policy impact if it were to be enforced.
 
 3. Apply network policies to control East-West traffic.
 
