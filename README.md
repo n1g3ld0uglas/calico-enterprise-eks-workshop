@@ -898,7 +898,8 @@ Calico network policies not only can secure pod to pod communications but also c
 
     Open `Alerts` view to see all triggered alerts in the cluster. Review the generated alerts.
 
-    ![alerts view](../img/alerts-view.png)
+    <img width="1573" alt="alerts-view" src="https://user-images.githubusercontent.com/82048393/124574835-c341a880-de42-11eb-8c5b-27a4502f1dce.png">
+
 
     You can also review the alerts configuration and templates by navigating to alerts configuration in the top right corner.
  
