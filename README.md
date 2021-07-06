@@ -576,16 +576,18 @@ You should be able to view the potential affect of the staged `default-deny` pol
     Now as we have proper policies in place, we can enforce `default-deny` policy moving closer to zero-trust security approach. You can either enforced the already deployed staged `default-deny` policy using the `Policies Board` view in the Enterirpse Manager UI, or you can apply an enforcing `default-deny` policy manifest.
 
     
- Apply enforcing default-deny policy manifest
+ After enforcing default-deny policy manifest
+ 
     ```
     kubectl apply -f https://raw.githubusercontent.com/n1g3ld0uglas/calico-enterprise-eks-workshop/main/policies/default-deny2.yaml
     ```
+ 
  You can delete staged default-deny policy
     ```
     kubectl delete -f https://raw.githubusercontent.com/n1g3ld0uglas/calico-enterprise-eks-workshop/main/policies/default-deny.yaml
     ```
     
-    <img width="1365" alt="Screenshot 2021-07-06 at 11 50 18" src="https://user-images.githubusercontent.com/82048393/124588175-6c42d000-de50-11eb-8420-aadff8001c5b.png">
+   <img width="1365" alt="Screenshot 2021-07-06 at 11 50 18" src="https://user-images.githubusercontent.com/82048393/124588175-6c42d000-de50-11eb-8420-aadff8001c5b.png">
 
 
 
