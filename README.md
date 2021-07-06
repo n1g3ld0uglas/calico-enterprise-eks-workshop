@@ -640,16 +640,27 @@ spec:
     
     Deploy feodo tracker threatfeed
     ```
-    kubectl apply -f demo/10-security-controls/feodotracker.threatfeed.yaml
+    kubectl apply -f https://raw.githubusercontent.com/tigera-solutions/tigera-eks-workshop/main/demo/10-security-controls/feodotracker.threatfeed.yaml
     ```
-    Deploy network policy that uses the threadfeed
+    
+    <img width="1771" alt="Screenshot 2021-07-06 at 13 34 36" src="https://user-images.githubusercontent.com/82048393/124600812-090c6a00-de5f-11eb-9650-a87791fa215a.png">
+
+    
+    Deploy network policy that uses the threatfeed
     ```
-    kubectl apply -f demo/10-security-controls/feodo-block-policy.yaml
+    kubectl apply -f https://raw.githubusercontent.com/tigera-solutions/tigera-eks-workshop/main/demo/10-security-controls/feodo-block-policy.yaml
     ```
+    
+    
+    
 
     Try to ping any of the IPs in from the feodo tracker list
     ```
     IP=$(kubectl get globalnetworkset threatfeed.feodo-tracker -ojson | jq .spec.nets[0] | sed -e 's/^"//' -e 's/"$//' -e 's/\/32//')
+    ```
+    
+    Try pinging the IP address associated with the threat feed:
+    ```
     kubectl -n dev exec -t centos -- sh -c "ping -c1 $IP"
     ```
 
@@ -682,7 +693,7 @@ spec:
     a. Deploy egress policy.
 
     ```
-    kubectl apply -f demo/20-egress-access-controls/centos-to-frontend.yaml
+    kubectl apply -f https://raw.githubusercontent.com/tigera-solutions/tigera-eks-workshop/main/demo/20-egress-access-controls/centos-to-frontend.yaml
     ```
 
     b. Test connectivity between `dev/centos` pod and `default/frontend` service.
@@ -692,20 +703,31 @@ spec:
     ```
 
     The access should be allowed once the egress policy is in place.
+    
+    <img width="1580" alt="Screenshot 2021-07-06 at 13 28 11" src="https://user-images.githubusercontent.com/82048393/124599900-18d77e80-de5e-11eb-944c-0a4c796bfc8a.png">
+
 
 3. Implement DNS policy to allow the external endpoint access from a specific workload, e.g. `dev/centos`.
 
     a. Apply a policy to allow access to `api.twilio.com` endpoint using DNS rule.
 
+    
+    Deploy dns policy
     ```
-    # deploy dns policy
-    kubectl apply -f demo/20-egress-access-controls/dns-policy.yaml
-
-    # test egress access to api.twilio.com
+    kubectl apply -f https://raw.githubusercontent.com/tigera-solutions/tigera-eks-workshop/main/demo/20-egress-access-controls/dns-policy.yaml
+    ```
+    
+    Test egress access to api.twilio.com
+    ```
     kubectl -n dev exec -t centos -- sh -c 'curl -m3 -skI https://api.twilio.com 2>/dev/null | grep -i http'
-    # test egress access to www.google.com
+    ```
+    Test egress access to www.google.com
+    ```
     kubectl -n dev exec -t centos -- sh -c 'curl -m3 -skI https://www.google.com 2>/dev/null | grep -i http'
     ```
+    
+    <img width="1579" alt="Screenshot 2021-07-06 at 13 30 36" src="https://user-images.githubusercontent.com/82048393/124600244-6ce26300-de5e-11eb-9956-89c47bf41b6f.png">
+
 
     Access to the `api.twilio.com` endpoint should be allowed by the DNS policy but not to any other external endpoints like `www.google.com` unless we modify the policy to include that domain name.
 
@@ -714,12 +736,15 @@ spec:
 
     Deploy network set
     ```    
-    kubectl apply -f demo/20-egress-access-controls/netset.external-apis.yaml
+    kubectl apply -f https://raw.githubusercontent.com/tigera-solutions/tigera-eks-workshop/main/demo/20-egress-access-controls/netset.external-apis.yaml
     ``` 
     Deploy DNS policy using the network set
     ``` 
-    kubectl apply -f demo/20-egress-access-controls/dns-policy.netset.yaml
+    kubectl apply -f https://raw.githubusercontent.com/tigera-solutions/tigera-eks-workshop/main/demo/20-egress-access-controls/dns-policy.netset.yaml
     ```
+    
+    <img width="1063" alt="Screenshot 2021-07-06 at 13 37 26" src="https://user-images.githubusercontent.com/82048393/124601111-5ab4f480-de5f-11eb-8411-ac5f5c21ac1a.png">
+
 
     >As a bonus example, you can modify the `external-apis` network set to include `*.google.com` domain name which would allow access to Google subdomains. If you do it, you can would allow acess to subdomains like `www.google.com`, `docs.google.com`, etc.
 
