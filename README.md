@@ -56,6 +56,9 @@ After you install kubectl , you can verify its version with the following comman
 kubectl version --short --client
 ```
 
+<img width="1403" alt="Screenshot 2021-07-06 at 10 18 44" src="https://user-images.githubusercontent.com/82048393/124575911-b83b4800-de43-11eb-8a4c-286bba2dda9e.png">
+
+
 First, create an Amazon EKS cluster without any nodes
 ```
 eksctl create cluster  --name tigera-workshop  --version 1.19  --with-oidc  --without-nodegroup
@@ -76,7 +79,26 @@ Finally, add nodes to the cluster
 eksctl create nodegroup --cluster tigera-workshop --node-type t3.xlarge  --nodes 3 --nodes-min 0 --nodes-max 3 --node-ami auto --max-pods-per-node 58
 ```
 
-View EKS cluster. Once the cluster is created you can list it using `eksctl`.
+Alternatively, we can just create a cluster using the default AWS VPC CNI:
+
+```
+eksctl create cluster  --name tigera-workshop  --version 1.19  --with-oidc --node-type t3.xlarge  --nodes 3 --nodes-min 0 --nodes-max 3 --node-ami auto --max-pods-per-node 58
+```
+
+<img width="1779" alt="Screenshot 2021-07-06 at 10 23 41" src="https://user-images.githubusercontent.com/82048393/124576833-9b534480-de44-11eb-8d4d-b0ba63cb510b.png">
+
+
+This bypasses the need to removing the cluster node group > removing the aws-node daemonset > installing the Calico CNI > and finally creating a supported node group for your cluster. 
+
+>Please note: This might take 8-10 cycles/minutes for CloudFormation to finish cluster deployment:
+
+<img width="1784" alt="Screenshot 2021-07-06 at 10 44 00" src="https://user-images.githubusercontent.com/82048393/124579606-30573d00-de47-11eb-8759-b13cccd95f51.png">
+
+
+
+
+
+On completion, you can view your EKS cluster by running the below `eksctl` command:
 
 ```
 eksctl get cluster tigera-workshop
