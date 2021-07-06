@@ -104,6 +104,9 @@ On completion, you can view your EKS cluster by running the below `eksctl` comma
 eksctl get cluster tigera-workshop
 ```
 
+<img width="854" alt="Screenshot 2021-07-06 at 10 51 05" src="https://user-images.githubusercontent.com/82048393/124580557-28e46380-de48-11eb-8a76-6e4461c77ffb.png">
+
+
 
 
 # Module 3: Joining EKS cluster to Calico Cloud
