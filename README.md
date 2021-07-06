@@ -845,7 +845,8 @@ Calico network policies not only can secure pod to pod communications but also c
 
     Compliance reports organize data in a CSV format which can be downloaded and moved to a long term data storage to meet compliance requirements.
 
-    ![compliance report](../img/compliance-report.png)
+    <img width="1571" alt="compliance-report" src="https://user-images.githubusercontent.com/82048393/124574593-85dd1b00-de42-11eb-8f30-88892486e8b5.png">
+
 
 2. *[Optional]* Manually kick off report generation task.
 
