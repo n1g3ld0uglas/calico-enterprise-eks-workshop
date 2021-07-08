@@ -1,0 +1,23 @@
+apiVersion: projectcalico.org/v3
+kind: StagedGlobalNetworkPolicy
+metadata:
+  name: security.ejr-vpn
+spec:
+  tier: security
+  order: 220
+  selector: all()
+  namespaceSelector: ''
+  serviceAccountSelector: ''
+  egress:
+    - action: Deny
+      source: {}
+      destination:
+        selector: feed == "ejr-vpn"
+    - action: Pass
+      source: {}
+      destination: {}
+  doNotTrack: false
+  applyOnForward: false
+  preDNAT: false
+  types:
+    - Egress
