@@ -1043,6 +1043,32 @@ Once correctly labeled, you can see the policy applying to each host endpoint:
 
 <img width="1756" alt="Screenshot 2021-06-17 at 14 41 01" src="https://user-images.githubusercontent.com/82048393/122408405-45dcf380-cf7a-11eb-9d02-213994d950d5.png">
 
+Alternatively, you can build a policy for worker nodes access to localhost:
+
+```
+kubectl apply -f - << EOF
+apiVersion: projectcalico.org/v3
+kind: GlobalNetworkPolicy
+metadata:
+  name: ingress-k8s-workers
+spec:
+  selector: has(kubernetes-worker)
+  # Allow all traffic to localhost.
+  ingress:
+  - action: Allow
+    destination:
+      nets:
+      - 127.0.0.1/32
+  # Allow only the masters access to the nodes kubelet API.
+  - action: Allow
+    protocol: TCP
+    source:
+      selector: has(node-role.kubernetes.io/master)
+    destination:
+      ports:
+      - 10250
+EOF
+```
 
 
     
@@ -1269,7 +1295,64 @@ Once correctly labeled, you can see the policy applying to each host endpoint:
 Congratulations! You have finished all the labs in the workshop.
 
 
-Scaling down your test cluster
+# HoneyPods
+
+Apply the following manifest to create a namespace and RBAC for the honeypods:
+```
+kubectl apply -f https://docs.tigera.io/v3.7/manifests/threatdef/honeypod/common.yaml 
+```
+
+```
+kubectl get secret tigera-pull-secret -n tigera-guardian -o json > pull-secret.json
+```
+
+edit pull-secret.json, remove creation timestamp, and change namespace from tigera-guardian to tigera-internal
+
+```
+kubectl apply -f pull-secret.json -n tigera-internal
+```
+
+IP Enumeration: Expose a empty pod that can only be reached via PodIP, we can see when the attacker is probing the pod network:
+```
+kubectl apply -f https://docs.tigera.io/v3.7/manifests/threatdef/honeypod/ip-enum.yaml 
+```
+Exposed Nginx Service: Expose a nginx service that serves a generic page. The pod can be discovered via ClusterIP or DNS lookup. 
+An unreachable service tigera-dashboard-internal-service is created to entice the attacker to find and reach, tigera-dashboard-internal-debug:
+```
+kubectl apply -f https://docs.tigera.io/v3.7/manifests/threatdef/honeypod/expose-svc.yaml 
+```
+
+```
+kubectl apply -f https://docs.tigera.io/v3.7/manifests/threatdef/honeypod/vuln-svc.yaml 
+```
+
+<img width="914" alt="Screenshot 2021-06-29 at 12 14 03" src="https://user-images.githubusercontent.com/82048393/123788193-a3a30100-d8d3-11eb-9299-7891c1fa23e9.png">
+
+
+Verify honeypods deployment
+
+```
+kubectl get pods -n tigera-internal
+```
+
+```
+kubectl get globalalerts
+```
+
+<img width="561" alt="Screenshot 2021-06-29 at 12 15 38" src="https://user-images.githubusercontent.com/82048393/123788296-be757580-d8d3-11eb-9841-45b0d3f7ab3d.png">
+
+
+Once you have verified that the honeypods are installed and working, it is recommended to remove the pull secret from the namespace:
+
+```
+kubectl delete secret tigera-pull-secret -n tigera-internal
+```
+
+
+
+
+
+# Scaling down your test cluster
 
     ```
     eksctl get cluster
