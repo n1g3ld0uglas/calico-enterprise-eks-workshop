@@ -777,102 +777,274 @@ Calico network policies not only can secure pod to pod communications but also c
 
 ## Steps
 
-1. Open a port of NodePort service for public access on EKS node.
+I'm building this scenario around a generic 3 node cluster - master, worker and etcd node:
 
-    For the demo purpose we are going to expose the `default/frontend` service via the `NodePort` service type to open it for the public access.
 
-    ```bash
-    # expose the frontend service via the NodePort service type
-    kubectl expose deployment frontend --type=NodePort --name=frontend-nodeport --overrides='{"apiVersion":"v1","spec":{"ports":[{"nodePort":30080,"port":80,"targetPort":8080}]}}'
+![Screenshot 2021-06-17 at 14 17 46](https://user-images.githubusercontent.com/82048393/122404102-d74a6680-cf76-11eb-88a3-8ee1219280e9.png)
 
-    # open access to the port in AWS security group
-    CLUSTER_NAME='tigera-workshop' # adjust the name if you used a different name for your EKS cluster
-    AWS_REGION=$(curl -s 169.254.169.254/latest/dynamic/instance-identity/document | jq -r '.region')
-    # pick one EKS node and use it's ID to get securigy group
-    SG_ID=$(aws ec2 describe-instances --region $AWS_REGION --filters "Name=tag:Name,Values=$CLUSTER_NAME*" "Name=instance-state-name,Values=running" --query 'Reservations[0].Instances[*].NetworkInterfaces[0].Groups[0].GroupId' --output text --output text)
-    ```
-    Open SSH port in the security group for public access
-    ```
-    aws ec2 authorize-security-group-ingress --region $AWS_REGION --group-id $SG_ID --protocol tcp --port 30080 --cidr 0.0.0.0/0
-    ```
-    
-    Get public IP of an EKS node
-    ```
-    PUB_IP=$(aws ec2 describe-instances --region $AWS_REGION --filters "Name=tag:Name,Values=$CLUSTER_NAME*" "Name=instance-state-name,Values=running" --query 'Reservations[0].Instances[0].PublicIpAddress' --output text --output text)
-    ```
-    Test connection to SSH port
-    ```
-    nc -zv $PUB_IP 30080
-    ```
 
-    >It can take a moment for the node port to become accessible.
+Automatically register your nodes as Host Endpoints (HEPS). To enable automatic host endpoints, edit the default KubeControllersConfiguration instance, and set spec.controllers.node.hostEndpoint.autoCreate to true:
 
-    If the SSH port was configured correctly, the `nc` command should show you that the port is open.
+```
+kubectl patch kubecontrollersconfiguration default --patch='{"spec": {"controllers": {"node": {"hostEndpoint": {"autoCreate": "Enabled"}}}}}'
+```
 
-2. Enable `HostEndpoint` auto-creation for EKS cluster.
+<img width="1560" alt="Screenshot 2021-06-17 at 14 14 55" src="https://user-images.githubusercontent.com/82048393/122403683-7753c000-cf76-11eb-9016-ac84ce09297c.png">
 
-    When working with managed Kubernetes services, such as EKS, we recommend using `HostEndpoint` (HEP) auto-creation feature which allows you to automate the management of `HostEndpoint` resources for managed Kubernetes clusters whenever the cluster is scaled.
+to add the label kubernetes-host to all nodes and their host endpoints:
 
-    >Before you enable HEP auto-creation feature, make sure there are no `HostEndpoint` resources manually defined for your cluster: `kubectl get hostendpoints`.
+```
+kubectl label nodes --all kubernetes-host=
+```
 
-    
-    Check whether auto-creation for HEPs is enabled. Default: Disabled
-    ```
-    kubectl get kubecontrollersconfiguration.p default -ojsonpath='{.status.runningConfig.controllers.node.hostEndpoint.autoCreate}'
-    ```
-    Enable HEP auto-creation
-    ```
-    kubectl patch kubecontrollersconfiguration.p default -p '{"spec": {"controllers": {"node": {"hostEndpoint": {"autoCreate": "Enabled"}}}}}'
-    ```
-    Verify that each node got a HostEndpoint resource created
-    ```
-    kubectl get hostendpoints
-    ```
+![Screenshot 2021-06-17 at 14 20 09](https://user-images.githubusercontent.com/82048393/122404637-4de76400-cf77-11eb-81d2-f63bb46b2779.png)
 
-3. Implement a Calico policy to control access to the service of NodePort type.
 
-    Deploy a policy that only allows access to the node port from the Cloud9 instance.
 
-    
-    From your local shell test connection to the node port, i.e. 30080, using netcat or telnet or other connectivity testing tool
-    EKS_NODE_PUB_IP=XX.XX.XX.XX
-    ```
-    nc -zv $EKS_NODE_PUB_IP 30080
-    ```
-    Get public IP of Cloud9 instance in the Cloud9 shell
-    ```
-    CLOUD9_IP=$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4)
-    ```
-    Deploy HEP policy
-    ```
-    sed -e "s/\${CLOUD9_IP}/${CLOUD9_IP}\/32/g" demo/30-secure-hep/frontend-nodeport-access.yaml | kubectl apply -f -
-    ```
-    Test access from Cloud9 shell
-    ```
-    nc -zv $EKS_NODE_PUB_IP 30080
-    ```
+This tutorial assumes that you already have a tier called 'rancher-nodes' in Calico Cloud:
 
-    Once the policy is implemented, you should not be able to access the node port `30080` from your local shell, but you should be able to access it from the Cloud9 shell.
+```
+cat << EOF > rancher-nodes.yaml
+apiVersion: projectcalico.org/v3
+kind: Tier
+metadata:
+  name: rancher-nodes
+spec:
+  order: 350
+EOF  
+```
 
-    >Note that in order to control access to the NodePort service, you need to enable `preDNAT` and `applyOnForward` policy settings.
+```
+kubectl apply -f rancher-nodes.yaml
+```
 
-4. *[Bonus task]* Implement a Calico policy to control access to the SSH port on EKS hosts.
+<img width="637" alt="Screenshot 2021-06-17 at 14 22 27" src="https://user-images.githubusercontent.com/82048393/122404854-7a9b7b80-cf77-11eb-96cf-55caf84d8353.png">
 
-    When dealing with SSH and platform required ports, Calico provides a fail safe mechanism to manage such posrts so that you don't lock yourself out of the node by accident. Once you configure and test host targeting policy, you can selectively disable fail safe ports.
 
-    Deploy FelixConfiguration to disable fail safe for SSH port
-    ```
-    kubectl apply -f demo/30-secure-hep/felixconfiguration.yaml
-    ```
-    
-    Get Public IP of Cloud9 instance
-    ```
-    CLOUD9_IP=$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4)
-    ```
-    Allow SSH access to EKS nodes only from the Cloud9 instance
-    ```
-    sed -e "s/\${CLOUD9_IP}/${CLOUD9_IP}\/32/g" demo/30-secure-hep/ssh-access.yaml | kubectl apply -f -
-    ```
+# etcd-nodes
+
+Once the tier is created, build a policy for the ETCD nodes:
+
+
+```
+cat << EOF > etcd-nodes.yaml
+apiVersion: projectcalico.org/v3
+kind: StagedGlobalNetworkPolicy
+metadata:
+  name: rancher-nodes.etcd-nodes
+spec:
+  tier: rancher-nodes
+  order: 0
+  selector: has(kubernetes-host) && environment == 'etcd'
+  namespaceSelector: ''
+  serviceAccountSelector: ''
+  ingress:
+    - action: Allow
+      protocol: TCP
+      source: {}
+      destination:
+        ports:
+          - '2376'
+          - '2379'
+          - '2380'
+          - '9099'
+          - '10250'
+    - action: Allow
+      protocol: UDP
+      source: {}
+      destination:
+        ports:
+          - '8472'
+  egress:
+    - action: Allow
+      protocol: TCP
+      source: {}
+      destination:
+        ports:
+          - '443'
+          - '2379'
+          - '2380'
+          - '6443'
+          - '9099'
+    - action: Allow
+      protocol: UDP
+      source: {}
+      destination:
+        ports:
+          - '8472'
+  doNotTrack: false
+  applyOnForward: false
+  preDNAT: false
+  types:
+    - Ingress
+    - Egress
+EOF  
+```
+
+```
+kubectl apply -f etcd-nodes.yaml
+```
+
+<img width="637" alt="Screenshot 2021-06-17 at 14 23 41" src="https://user-images.githubusercontent.com/82048393/122405073-a74f9300-cf77-11eb-865a-8ac3ffcb077f.png">
+
+
+# Control-plane-nodes (Master Node)
+
+Now proceed to build a policy for the master nodes:
+
+
+```
+cat << EOF > control-plane-nodes.yaml
+apiVersion: projectcalico.org/v3
+kind: StagedGlobalNetworkPolicy
+metadata:
+  name: rancher-nodes.control-plane-nodes
+spec:
+  tier: rancher-nodes
+  order: 100
+  selector: has(kubernetes-host) && environment == 'master'
+  namespaceSelector: ''
+  serviceAccountSelector: ''
+  ingress:
+    - action: Allow
+      protocol: TCP
+      source: {}
+      destination:
+        ports:
+          - '80'
+          - '443'
+          - '2376'
+          - '6443'
+          - '9099'
+          - '10250'
+    - action: Allow
+      protocol: UDP
+      source: {}
+      destination:
+        ports:
+          - '8472'
+  egress:
+    - action: Allow
+      protocol: TCP
+      source: {}
+      destination:
+        ports:
+          - '443'
+          - '2379'
+          - '2380'
+          - '9099'
+          - '10250'
+          - '10254'
+    - action: Allow
+      protocol: UDP
+      source: {}
+      destination:
+        ports:
+          - '8472'
+  doNotTrack: false
+  applyOnForward: false
+  preDNAT: false
+  types:
+    - Ingress
+    - Egress
+EOF  
+```
+
+```
+kubectl apply -f control-plane-nodes.yaml
+```
+
+<img width="621" alt="Screenshot 2021-06-17 at 14 25 14" src="https://user-images.githubusercontent.com/82048393/122405314-da922200-cf77-11eb-8b74-a088b5ed16ad.png">
+
+
+# worker-nodes
+
+Finally, we can build a policy for the worker nodes:
+
+
+```
+cat << EOF > worker-nodes.yaml
+apiVersion: projectcalico.org/v3
+kind: StagedGlobalNetworkPolicy
+metadata:
+  name: rancher-nodes.worker-nodes
+spec:
+  tier: rancher-nodes
+  order: 200
+  selector: has(kubernetes-host) && environment == 'worker'
+  namespaceSelector: ''
+  serviceAccountSelector: ''
+  ingress:
+    - action: Allow
+      protocol: TCP
+      source: {}
+      destination:
+        ports:
+          - '22'
+          - '3389'
+          - '80'
+          - '443'
+          - '2376'
+          - '9099'
+          - '10250'
+          - '10254'
+    - action: Allow
+      protocol: UDP
+      source: {}
+      destination:
+        ports:
+          - '8472'
+  egress:
+    - action: Allow
+      protocol: TCP
+      source: {}
+      destination:
+        ports:
+          - '443'
+          - '6443'
+          - '9099'
+          - '10254'
+    - action: Allow
+      protocol: UDP
+      source: {}
+      destination:
+        ports:
+          - '8472'
+  doNotTrack: false
+  applyOnForward: false
+  preDNAT: false
+  types:
+    - Ingress
+    - Egress
+EOF  
+```
+
+```
+kubectl apply -f worker-nodes.yaml
+```
+
+<img width="615" alt="Screenshot 2021-06-17 at 14 26 22" src="https://user-images.githubusercontent.com/82048393/122405523-09a89380-cf78-11eb-8295-509a8ff953f2.png">
+
+
+
+# Label based on node purpose
+
+To select a specific set of host endpoints (and their corresponding Kubernetes nodes), use a policy selector that selects a label unique to that set of host endpoints. For example, if we want to add the label environment=dev to nodes named node1 and node2:
+
+```
+kubectl label node ip-10-0-1-165 environment=master
+kubectl label node ip-10-0-1-167 environment=worker
+kubectl label node ip-10-0-1-227 environment=etcd
+```
+
+![Screenshot 2021-06-17 at 14 31 27](https://user-images.githubusercontent.com/82048393/122406788-06fa6e00-cf79-11eb-9bd9-4e5882e51e00.png)
+
+Once correctly labeled, you can see the policy applying to each host endpoint:
+
+<img width="1756" alt="Screenshot 2021-06-17 at 14 41 01" src="https://user-images.githubusercontent.com/82048393/122408405-45dcf380-cf7a-11eb-9d02-213994d950d5.png">
+
+
+
     
     
 # Module 10: Using observability tools
