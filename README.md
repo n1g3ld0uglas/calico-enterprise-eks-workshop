@@ -189,9 +189,9 @@ spec:
 EOF
 ```
 
-    ```
-    kubectl apply -f https://raw.githubusercontent.com/n1g3ld0uglas/calico-enterprise-eks-workshop/main/policies/tiers.yaml
-    ```
+```
+kubectl apply -f https://raw.githubusercontent.com/n1g3ld0uglas/calico-enterprise-eks-workshop/main/policies/tiers.yaml
+```
 
 <img width="532" alt="Screenshot 2021-07-06 at 11 10 10" src="https://user-images.githubusercontent.com/82048393/124583358-dd7f8480-de4a-11eb-9f29-33d76d295652.png">
 
@@ -235,9 +235,9 @@ EOF
 
 Apply the file
 
-    ```
-    kubectl apply -f https://raw.githubusercontent.com/n1g3ld0uglas/calico-enterprise-eks-workshop/main/policies/allow-kube-dns.yaml
-    ```
+```
+kubectl apply -f https://raw.githubusercontent.com/n1g3ld0uglas/calico-enterprise-eks-workshop/main/policies/allow-kube-dns.yaml
+```
     
 At this point, we have created our 1st network policy to allow traffic for Kube-DNS (based solely on label selection):
 
@@ -246,12 +246,13 @@ At this point, we have created our 1st network policy to allow traffic for Kube-
 
 3. Deploy demo applications.
 
-    ```
-    kubectl apply -f https://raw.githubusercontent.com/tigera-solutions/tigera-eks-workshop/main/demo/dev/app.manifests.yaml
-    ```
-    ```
-    kubectl apply -f https://raw.githubusercontent.com/GoogleCloudPlatform/microservices-demo/master/release/kubernetes-manifests.yaml
-    ```
+```
+kubectl apply -f https://raw.githubusercontent.com/tigera-solutions/tigera-eks-workshop/main/demo/dev/app.manifests.yaml
+```
+
+```
+kubectl apply -f https://raw.githubusercontent.com/GoogleCloudPlatform/microservices-demo/master/release/kubernetes-manifests.yaml
+```
 
 After running the above 3 commands, you should have the demo application up-and-running:
 
@@ -281,9 +282,9 @@ spec:
     numFailedTests: 5
 ```
 
-    ```
-    kubectl apply -f https://raw.githubusercontent.com/tigera-solutions/tigera-eks-workshop/main/demo/40-compliance-reports/daily-cis-results.yaml
-    ```
+```
+kubectl apply -f https://raw.githubusercontent.com/tigera-solutions/tigera-eks-workshop/main/demo/40-compliance-reports/daily-cis-results.yaml
+```
 
 ```
 ---
@@ -315,9 +316,9 @@ spec:
 #   schedule: '*/30 * * * *'
 ```
 
-    ```
-    kubectl apply -f https://raw.githubusercontent.com/tigera-solutions/tigera-eks-workshop/main/demo/40-compliance-reports/cluster-reports.yaml
-    ```
+```
+kubectl apply -f https://raw.githubusercontent.com/tigera-solutions/tigera-eks-workshop/main/demo/40-compliance-reports/cluster-reports.yaml
+```
 
 5. Deploy global alerts.
 
@@ -363,9 +364,10 @@ spec:
   threshold: 0
 ```
 
-    ```
-    kubectl apply -f https://raw.githubusercontent.com/tigera-solutions/tigera-eks-workshop/main/demo/50-alerts/globalnetworkset.changed.yaml
-    ```
+```
+kubectl apply -f https://raw.githubusercontent.com/tigera-solutions/tigera-eks-workshop/main/demo/50-alerts/globalnetworkset.changed.yaml
+```
+
 ```
 ---
 apiVersion: projectcalico.org/v3
@@ -404,9 +406,9 @@ spec:
   threshold: 0
 ```
 
-    ```
-    kubectl apply -f https://raw.githubusercontent.com/tigera-solutions/tigera-eks-workshop/main/demo/50-alerts/unsanctioned.dns.access.yaml
-    ```
+```
+kubectl apply -f https://raw.githubusercontent.com/tigera-solutions/tigera-eks-workshop/main/demo/50-alerts/unsanctioned.dns.access.yaml
+```
 
 ```
 ---
@@ -448,9 +450,9 @@ spec:
   threshold: 0
 ```
 
-    ```
-    kubectl apply -f https://raw.githubusercontent.com/tigera-solutions/tigera-eks-workshop/main/demo/50-alerts/unsanctioned.lateral.access.yaml
-    ```
+```
+kubectl apply -f https://raw.githubusercontent.com/tigera-solutions/tigera-eks-workshop/main/demo/50-alerts/unsanctioned.lateral.access.yaml
+```
 
 
 For this section, we simply ran some `kubectl apply` commands in order to create our global alerts and scheduling compliance reports:
