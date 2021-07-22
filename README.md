@@ -153,9 +153,9 @@ eksctl get cluster tigera-workshop
 
     >[Felix](https://docs.tigera.io/reference/architecture/overview#felix) is one of Calico components that is responsible for configuring routes, ACLs, and anything else required on the host to provide desired connectivity for the endpoints on that host.
 
-    ```
-    kubectl patch felixconfiguration default --type='merge' -p '{"spec":{"policySyncPathPrefix":"/var/run/nodeagent","l7LogsFileEnabled":true}}'
-    ```
+```
+kubectl patch felixconfiguration default --type='merge' -p '{"spec":{"policySyncPathPrefix":"/var/run/nodeagent","l7LogsFileEnabled":true}}'
+```
     
     
  
@@ -491,29 +491,29 @@ For this section, we simply ran some `kubectl apply` commands in order to create
     b. Test connectivity across namespaces.
 
     Test connectivity from dev namespace to default namespace
-    ```
-    kubectl -n dev exec -t centos -- sh -c 'curl -m3 -sI http://frontend.default 2>/dev/null | grep -i http'
-    ```
-    Test connectivity from default namespace to dev namespace
-    ```
-    kubectl exec -it $(kubectl get po -l app=loadgenerator -ojsonpath='{.items[0].metadata.name}') -- sh -c 'curl -m3 -sI http://nginx-svc.dev 2>/dev/null | grep -i http'
-    ```
+```
+kubectl -n dev exec -t centos -- sh -c 'curl -m3 -sI http://frontend.default 2>/dev/null | grep -i http'
+```
+   Test connectivity from default namespace to dev namespace
+```
+kubectl exec -it $(kubectl get po -l app=loadgenerator -ojsonpath='{.items[0].metadata.name}') -- sh -c 'curl -m3 -sI http://nginx-svc.dev 2>/dev/null | grep -i http'
+```
     
-    <img width="1670" alt="Screenshot 2021-07-06 at 11 25 51" src="https://user-images.githubusercontent.com/82048393/124585186-f9842580-de4c-11eb-8826-5461957a779b.png">
+  <img width="1670" alt="Screenshot 2021-07-06 at 11 25 51" src="https://user-images.githubusercontent.com/82048393/124585186-f9842580-de4c-11eb-8826-5461957a779b.png">
 
 
-    c. Test connectivity from each namespace to the Internet.
+  c. Test connectivity from each namespace to the Internet.
 
     
-    Test connectivity from dev namespace to the Internet
-    ```
-    kubectl -n dev exec -t centos -- sh -c 'curl -m3 -sI http://www.google.com 2>/dev/null | grep -i http'
-    ```
+  Test connectivity from dev namespace to the Internet
+```
+kubectl -n dev exec -t centos -- sh -c 'curl -m3 -sI http://www.google.com 2>/dev/null | grep -i http'
+```
     
    Test connectivity from default namespace to the Internet
-   ```
-   kubectl exec -it $(kubectl get po -l app=loadgenerator -ojsonpath='{.items[0].metadata.name}') -- sh -c 'curl -m3 -sI www.google.com 2>/dev/null | grep -i http'
-   ```
+ ```
+ kubectl exec -it $(kubectl get po -l app=loadgenerator -ojsonpath='{.items[0].metadata.name}') -- sh -c 'curl -m3 -sI www.google.com 2>/dev/null | grep -i http'
+ ```
 
    <img width="1781" alt="Screenshot 2021-07-06 at 11 27 30" src="https://user-images.githubusercontent.com/82048393/124585470-394b0d00-de4d-11eb-843f-735f51198139.png">
 
@@ -539,9 +539,9 @@ spec:
 
 Apply the below command
 
-    ```
-    kubectl apply -f https://raw.githubusercontent.com/n1g3ld0uglas/calico-enterprise-eks-workshop/main/policies/default-deny.yaml
-    ```
+```
+kubectl apply -f https://raw.githubusercontent.com/n1g3ld0uglas/calico-enterprise-eks-workshop/main/policies/default-deny.yaml
+```
 
 The output should look something like this.. 
     <img width="1183" alt="Screenshot 2021-07-06 at 11 41 39" src="https://user-images.githubusercontent.com/82048393/124587103-29ccc380-de4f-11eb-8862-fa007fa55dec.png">
@@ -552,25 +552,26 @@ You should be able to view the potential affect of the staged `default-deny` pol
   <img width="928" alt="Screenshot 2021-07-06 at 11 42 48" src="https://user-images.githubusercontent.com/82048393/124587258-54b71780-de4f-11eb-9713-08c2d2d9d5af.png">
 
 
-    ```
-    # make a request across namespaces and view Packets by Policy histogram
-    for i in {1..10}; do kubectl -n dev exec -t centos -- sh -c 'curl -m3 -sI http://frontend.default 2>/dev/null | grep -i http'; sleep 2; done
-    ```
+```
+# make a request across namespaces and view Packets by Policy histogram
+for i in {1..10}; do kubectl -n dev exec -t centos -- sh -c 'curl -m3 -sI http://frontend.default 2>/dev/null | grep -i http'; sleep 2; done
+```
 
    >The staged policy does not affect the traffic directly but allows you to view the policy impact if it were to be enforced.
 
 3. Apply network policies to control East-West traffic.
 
     Deploy dev policies
-    ```
-    kubectl apply -f https://raw.githubusercontent.com/tigera-solutions/tigera-eks-workshop/main/demo/dev/policies.yaml
-    ```
-    Deploy boutiqueshop policies
-    ```
-    kubectl apply -f https://raw.githubusercontent.com/tigera-solutions/tigera-eks-workshop/main/demo/boutiqueshop/policies.yaml
-    ```
+```
+kubectl apply -f https://raw.githubusercontent.com/tigera-solutions/tigera-eks-workshop/main/demo/dev/policies.yaml
+```
     
-    <img width="1308" alt="Screenshot 2021-07-06 at 11 44 39" src="https://user-images.githubusercontent.com/82048393/124587558-a790cf00-de4f-11eb-8a76-bf1e4395057e.png">
+Deploy boutiqueshop policies
+```
+kubectl apply -f https://raw.githubusercontent.com/tigera-solutions/tigera-eks-workshop/main/demo/boutiqueshop/policies.yaml
+```
+    
+ <img width="1308" alt="Screenshot 2021-07-06 at 11 44 39" src="https://user-images.githubusercontent.com/82048393/124587558-a790cf00-de4f-11eb-8a76-bf1e4395057e.png">
 
 <img width="1185" alt="Screenshot 2021-07-06 at 11 46 21" src="https://user-images.githubusercontent.com/82048393/124587723-dc9d2180-de4f-11eb-939d-3e9ac6d958b9.png">
 
