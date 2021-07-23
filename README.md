@@ -126,10 +126,10 @@ eksctl get cluster tigera-workshop
 
     Use Calico Cloud install script provided in the welcome email for Calico Cloud trial account.
 
-    ```
-    # script should look similar to this
-    curl https://installer.calicocloud.io/xxxxxx_yyyyyyy-saay-management_install.sh | bash
-    ```
+```
+# script should look similar to this
+curl https://installer.calicocloud.io/xxxxxx_yyyyyyy-saay-management_install.sh | bash
+```
 
     Joining the cluster to Calico Cloud can take a few minutes. Wait for the installation script to finish before you proceed to the next step.
 
