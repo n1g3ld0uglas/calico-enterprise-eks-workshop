@@ -1399,6 +1399,42 @@ kubectl delete secret tigera-pull-secret -n tigera-internal
     
     
   ![Calico-Networking-For-Kubernetes](https://user-images.githubusercontent.com/82048393/124490722-60043780-ddaa-11eb-80a9-4dab4cf3313c.png)
+  
+
+# Adding the Google Boutique Application
+
+Apply the manifests for the applications
+```
+kubectl apply -f https://raw.githubusercontent.com/GoogleCloudPlatform/microservices-demo/master/release/kubernetes-manifests.yaml
+```
+
+Apply the policies for the application
+```
+kubectl apply -f https://raw.githubusercontent.com/tigera-solutions/tigera-eks-workshop/main/demo/boutiqueshop/policies.yaml
+```
+
+Delete the manifests for the applications
+```
+kubectl delete -f https://raw.githubusercontent.com/GoogleCloudPlatform/microservices-demo/master/release/kubernetes-manifests.yaml
+```
+
+Delete the policies for the application
+```
+kubectl delete -f https://raw.githubusercontent.com/tigera-solutions/tigera-eks-workshop/main/demo/boutiqueshop/policies.yaml
+```
+
+# RBAC login for Calico Enterprise
+
+Login with full network admin priveleges:
+```
+kubectl get secret $(kubectl get serviceaccount nigel -o jsonpath='{range .secrets[*]}{.name}{"\n"}{end}' | grep token) -o go-template='{{.data.token | base64decode}}' && echo
+```
+
+Login with limitied read-only user priveleges:
+```
+kubectl get secret $(kubectl get serviceaccount taher -o jsonpath='{range .secrets[*]}{.name}{"\n"}{end}' | grep token) -o go-template='{{.data.token | base64decode}}' && echo
+```
+
     
 Slides accessible here:
 https://docs.google.com/presentation/d/1agl2xbuBNYRUASEBynV-8cpcL58UeHZcpE627dVnwJU/edit#slide=id.g79881f7cab_2_73
