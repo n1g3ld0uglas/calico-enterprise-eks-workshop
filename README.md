@@ -1051,7 +1051,16 @@ kubectl apply -f worker-nodes.yaml
 
 <img width="615" alt="Screenshot 2021-06-17 at 14 26 22" src="https://user-images.githubusercontent.com/82048393/122405523-09a89380-cf78-11eb-8295-509a8ff953f2.png">
 
-
+# Download node policies into your own cluster
+```
+wget https://raw.githubusercontent.com/n1g3ld0uglas/calico-enterprise-eks-workshop/main/hostpolicies/etcd.yaml
+```
+```
+wget https://raw.githubusercontent.com/n1g3ld0uglas/calico-enterprise-eks-workshop/main/hostpolicies/master.yaml
+```
+```
+wget https://raw.githubusercontent.com/n1g3ld0uglas/calico-enterprise-eks-workshop/main/hostpolicies/worker.yaml
+```
 
 # Label based on node purpose
 
