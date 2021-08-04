@@ -1,0 +1,74 @@
+apiVersion: projectcalico.org/v3
+kind: StagedGlobalNetworkPolicy
+metadata:
+  name: nodes.worker-nodes
+spec:
+  tier: nodes
+  order: 200
+  selector: (has(kubernetes-host)&&environment == "worker")
+  namespaceSelector: ''
+  serviceAccountSelector: ''
+  ingress:
+    - action: Deny
+      protocol: TCP
+      source: {}
+      destination:
+        ports:
+          - '22'
+    - action: Allow
+      protocol: TCP
+      source: {}
+      destination:
+        notPorts:
+          - '22'
+    - action: Deny
+      protocol: UDP
+      source: {}
+      destination:
+        ports:
+          - '22'
+    - action: Allow
+      protocol: UDP
+      source: {}
+      destination:
+        notPorts:
+          - '22'
+    - action: Deny
+      protocol: ICMP
+      source: {}
+      destination: {}
+  egress:
+    - action: Deny
+      protocol: TCP
+      source: {}
+      destination:
+        ports:
+          - '22'
+    - action: Allow
+      protocol: TCP
+      source: {}
+      destination:
+        notPorts:
+          - '22'
+    - action: Deny
+      protocol: UDP
+      source: {}
+      destination:
+        notPorts:
+          - '22'
+    - action: Allow
+      protocol: UDP
+      source: {}
+      destination:
+        ports:
+          - '22'
+    - action: Deny
+      protocol: ICMP
+      source: {}
+      destination: {}
+  doNotTrack: false
+  applyOnForward: false
+  preDNAT: false
+  types:
+    - Ingress
+    - Egress
