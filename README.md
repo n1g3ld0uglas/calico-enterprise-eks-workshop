@@ -211,10 +211,10 @@ cat << EOF > allow-kube-dns.yaml
 apiVersion: projectcalico.org/v3
 kind: GlobalNetworkPolicy
 metadata:
-  name: platform.allow-kube-dns
+  name: security.allow-kube-dns
 spec:
-  # requires platform tier to exist
-  tier: platform
+  # requires security tier to exist
+  tier: security
   order: 2000
   selector: all()
   types:
