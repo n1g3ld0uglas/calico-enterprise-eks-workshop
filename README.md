@@ -291,7 +291,7 @@ kubectl apply -f https://raw.githubusercontent.com/tigera-solutions/tigera-eks-w
 apiVersion: projectcalico.org/v3
 kind: GlobalReport
 metadata:
-  name: cluster-inventory
+  name: half-hour-inventory
 spec:
   reportType: inventory
   schedule: '*/30 * * * *'
@@ -300,20 +300,20 @@ spec:
 apiVersion: projectcalico.org/v3
 kind: GlobalReport
 metadata:
-  name: cluster-network-access
+  name: hourly-network-access
 spec:
   reportType: network-access
-  schedule: '*/30 * * * *'
+  schedule: 0 * * * *
 
 # uncomment policy-audit report if you configured audit logs for EKS cluster https://docs.tigera.io/compliance/compliance-reports/compliance-managed-cloud#enable-audit-logs-in-eks
 # ---
 # apiVersion: projectcalico.org/v3
 # kind: GlobalReport
 # metadata:
-#   name: cluster-policy-audit
+#   name: weekly-policy-audit
 # spec:
 #   reportType: policy-audit
-#   schedule: '*/30 * * * *'
+#   schedule: 0 0 0 * *
 ```
 
 ```
