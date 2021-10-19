@@ -827,21 +827,21 @@ kubectl label nodes --all kubernetes-host=
 
 
 
-This tutorial assumes that you already have a tier called 'rancher-nodes' in Calico Cloud:
+This tutorial assumes that you already have a tier called 'eks-nodes' in Calico Cloud:
 
 ```
-cat << EOF > rancher-nodes.yaml
+cat << EOF > eks-nodes.yaml
 apiVersion: projectcalico.org/v3
 kind: Tier
 metadata:
-  name: rancher-nodes
+  name: eks-nodes
 spec:
   order: 350
 EOF  
 ```
 
 ```
-kubectl apply -f rancher-nodes.yaml
+kubectl apply -f eks-nodes.yaml
 ```
 
 <img width="637" alt="Screenshot 2021-06-17 at 14 22 27" src="https://user-images.githubusercontent.com/82048393/122404854-7a9b7b80-cf77-11eb-96cf-55caf84d8353.png">
@@ -857,9 +857,9 @@ cat << EOF > etcd-nodes.yaml
 apiVersion: projectcalico.org/v3
 kind: StagedGlobalNetworkPolicy
 metadata:
-  name: rancher-nodes.etcd-nodes
+  name: eks-nodes.etcd-nodes
 spec:
-  tier: rancher-nodes
+  tier: eks-nodes
   order: 0
   selector: has(kubernetes-host) && environment == 'etcd'
   namespaceSelector: ''
@@ -924,9 +924,9 @@ cat << EOF > control-plane-nodes.yaml
 apiVersion: projectcalico.org/v3
 kind: StagedGlobalNetworkPolicy
 metadata:
-  name: rancher-nodes.control-plane-nodes
+  name: eks-nodes.control-plane-nodes
 spec:
-  tier: rancher-nodes
+  tier: eks-nodes
   order: 100
   selector: has(kubernetes-host) && environment == 'master'
   namespaceSelector: ''
@@ -993,9 +993,9 @@ cat << EOF > worker-nodes.yaml
 apiVersion: projectcalico.org/v3
 kind: StagedGlobalNetworkPolicy
 metadata:
-  name: rancher-nodes.worker-nodes
+  name: eks-nodes.worker-nodes
 spec:
-  tier: rancher-nodes
+  tier: eks-nodes
   order: 200
   selector: has(kubernetes-host) && environment == 'worker'
   namespaceSelector: ''
@@ -1280,52 +1280,57 @@ EOF
 
 ## Steps
 
-1. Configure packet capture.
-
-    Navigate to `demo/60-packet-capture` and review YAML manifests that represent packet capture definition. Each packet capture is configured by deploing a `PacketCapture` resource that targets endpoints using `selector` and `labels`.
-
-    Deploy packet capture definition to capture packets for `dev/nginx` pods.
-
-    ```bash
-    kubectl apply -f demo/60-packet-capture/nginx-pcap.yaml
-    ```
-
-    >Once the `PacketCapture` resource is deployed, Calico starts capturing packets for all endpoints configured in the `selector` field.
-
-2. Install `calicoctl` CLI
-
-    The easiest way to retrieve captured `*.pcap` files is to use [calicoctl](https://docs.tigera.io/maintenance/clis/calicoctl/) CLI.
-
-    ```bash
-    # download and configure calicoctl
-    curl -o calicoctl -O -L https://docs.tigera.io/download/binaries/v3.7.0/calicoctl
-    chmod +x calicoctl
-    sudo mv calicoctl /usr/local/bin/
-    calicoctl version
-    ```
-
-3. Fetch and review captured payload.
-
-    >The captured `*.pcap` files are stored on the hosts where pods are running at the time the `PacketCapture` resource is active.
-
-    Retrieve captured `*.pcap` files and review the content.
-
-    ```bash
-    # get pcap files
-    calicoctl captured-packets copy dev-capture-nginx --namespace dev
-
-    ls dev-nginx*
-    # view *.pcap content
-    tcpdump -Xr dev-nginx-XXXXXX.pcap
-    ```
-
-4. Stop packet capture
-
-    Stop packet capture by removing the `PacketCapture` resource.
-
-    ```
-    kubectl delete -f demo/60-packet-capture/nginx-pcap.yaml
-    ```
+Check that there are no packet captures in this directory  
+```
+ls *pcap
+```
+A Packet Capture resource (PacketCapture) represents captured live traffic for debugging microservices and application interaction inside a Kubernetes cluster.</br>
+https://docs.tigera.io/reference/calicoctl/captured-packets  
+```
+kubectl apply -f https://raw.githubusercontent.com/tigera-solutions/aws-howdy-parter-calico-cloud/main/workloads/packet-capture.yaml
+```
+Confirm this is now running:  
+```  
+kubectl get packetcapture -n storefront
+```
+Once the capture is created, you can delete the collector:
+```
+kubectl delete -f https://raw.githubusercontent.com/tigera-solutions/aws-howdy-parter-calico-cloud/main/workloads/packet-capture.yaml
+```
+#### Install a Calicoctl plugin  
+Use the following command to download the calicoctl binary:</br>
+https://docs.tigera.io/maintenance/clis/calicoctl/install#install-calicoctl-as-a-kubectl-plugin-on-a-single-host
+``` 
+curl -o kubectl-calico -O -L  https://docs.tigera.io/download/binaries/v3.7.0/calicoctl
+``` 
+Set the file to be executable.
+``` 
+chmod +x kubectl-calico
+```
+Verify the plugin works:
+``` 
+./kubectl-calico -h
+``` 
+#### Move the packet capture
+```
+./kubectl-calico captured-packets copy storefront-capture -n storefront
+``` 
+Check that the packet captures are now created:
+```
+ls *pcap
+```
+#### Install TSHARK and troubleshoot per pod 
+Use Yum To Search For The Package That Installs Tshark:</br>
+https://www.question-defense.com/2010/03/07/install-tshark-on-centos-linux-using-the-yum-package-manager
+```  
+sudo yum install wireshark
+```  
+```  
+tshark -r frontend-75875cb97c-2fkt2_enib222096b242.pcap -2 -R dns | grep microservice1
+``` 
+```  
+tshark -r frontend-75875cb97c-2fkt2_enib222096b242.pcap -2 -R dns | grep microservice2
+```  
 
 Congratulations! You have finished all the labs in the workshop.
 
