@@ -1,7 +1,7 @@
-# calico-enterprise-eks-workshop
-Kubernetes Security and Observability for EKS Workshop
+# Calico Cloud EKS Workshop
+Kubernetes Security and Observability for EKS using Calico Cloud
 
-# Module 2: Creating EKS cluster
+# Creating an EKS cluster
 
 **Goal:** Create EKS cluster.
 
