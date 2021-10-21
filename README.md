@@ -1394,15 +1394,17 @@ kubectl delete secret tigera-pull-secret -n tigera-internal
 
 # Scaling down your test cluster
 
-    ```
-    eksctl get cluster
-    ```
-    ```
-    eksctl get nodegroup --cluster tigera-workshop
-    ```
-    ```
-    eksctl scale nodegroup --cluster tigera-workshop --name ng-12150b8f --nodes 0
-    ```
+```
+eksctl get cluster
+```
+
+```
+eksctl get nodegroup --cluster nigel-eks-cluster2
+```
+
+```
+eksctl scale nodegroup --cluster nigel-eks-cluster2 --name ng-f22ea39f --nodes 0
+```
 
 <img width="937" alt="Screenshot 2021-07-06 at 16 54 57" src="https://user-images.githubusercontent.com/82048393/124631212-10da0780-de7b-11eb-96c0-f4041e97788d.png">
 
