@@ -1449,6 +1449,12 @@ Login with limitied read-only user priveleges:
 kubectl get secret $(kubectl get serviceaccount taher -o jsonpath='{range .secrets[*]}{.name}{"\n"}{end}' | grep token) -o go-template='{{.data.token | base64decode}}' && echo
 ```
 
-    
-Slides accessible here:
-https://docs.google.com/presentation/d/1agl2xbuBNYRUASEBynV-8cpcL58UeHZcpE627dVnwJU/edit#slide=id.g79881f7cab_2_73
+
+# Connect Cluster with a unique naming convention
+
+When you join a cluster to a shared CC instance, try to prefix it with your name so that it’s easy to tell what’s yours if you forget to add the ```owner``` label:
+
+```
+CLUSTER_PREFIX='nigel-eks'
+curl -s https://installer.calicocloud.io/XXXXXXXXXXXX-management_install.sh | sed -e "s/CLUSTER_NAME=.*$/CLUSTER_NAME=${CLUSTER_PREFIX}/1" | bash
+```  
