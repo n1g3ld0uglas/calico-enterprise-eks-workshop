@@ -8,6 +8,8 @@ Kubernetes Security and Observability for EKS using Calico Cloud
 This workshop uses EKS cluster with most of the default configuration settings. 
 >To create an EKS cluster and tune the default settings, consider exploring [EKS Workshop](https://www.eksworkshop.com) materials.
 
+We will create the cluster with the Calico CNI as there are no limitations on pods per node (unlike the AWS VPC CNI): <br/>
+https://aws.amazon.com/blogs/opensource/networking-foundation-eks-aws-cni-calico/#:~:text=In%20contrast%2C%20Calico%20has%20no,be%20used%20across%20all%20nodes.
 
 ## Steps
 
